@@ -1,6 +1,6 @@
 # `maria-tests`
 
-This is a throw-away projects to test the MariaDB-related things.
+This is a throw-away project to test the MariaDB-related things.
 
 ## Prerequisites
 
@@ -36,3 +36,40 @@ Install the project into the `~/projects/maria-tests` directory (the "project di
 
         cd ~/projects/maria-tests
         sail artisan migrate:fresh --seed
+
+**Notice**. The seeder creates the `products` table with 1,000,000 rows in only 24 seconds!
+
+## Testing column creation performance in big tables
+
+The `column:add` column adds a foreign key to a table having 1M rows:
+
+```php
+Schema::table('products', function ($table) {
+    $table->foreignId($this->getColumnName())
+        ->nullable()
+        ->constrained('products')
+        ->nullOnDelete();
+});
+```
+
+Here is its performance on a modest laptop:
+
+```bash
+$ sail artisan column:add
+Elapsed: 6529ms
+$ sail artisan column:add
+Elapsed: 8317ms
+$ sail artisan column:add
+Elapsed: 10027ms
+$ sail artisan column:add
+Elapsed: 10926ms
+$ sail artisan column:add
+Elapsed: 11572ms
+```
+
+Overall, not bad.
+
+Nothing unexpected, but things to note:
+
+* The more columns you add, the longer it takes. 
+* It's likely that the time will increase with the number of rows in the table.
