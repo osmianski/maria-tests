@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Benchmark;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class AddColumn extends Command
@@ -27,16 +28,22 @@ class AddColumn extends Command
      */
     public function handle(): void
     {
-        $elapsed = Benchmark::measure(function() {
-            Schema::table('products', function ($table) {
-                $table->foreignId($this->getColumnName())
+        $column = $this->getColumnName();
+
+        $this->info(sprintf('ALTER TABLE: %dms', Benchmark::measure(function() use ($column) {
+            Schema::table('products', function ($table) use ($column) {
+                $table->foreignId($column)
                     ->nullable()
                     ->constrained('products')
                     ->nullOnDelete();
             });
-        });
+        })));
 
-        $this->info(sprintf('Elapsed: %dms', $elapsed));
+        $this->info(sprintf('UPDATE: %dms', Benchmark::measure(function() use ($column) {
+            DB::table('products')->update([
+                $column => DB::raw("CEIL(RAND() * 1000000)"),
+            ]);
+        })));
     }
 
     protected function getColumnName(): string

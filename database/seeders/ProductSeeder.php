@@ -27,7 +27,28 @@ class ProductSeeder extends Seeder
 
         for ($j = 0; $j < 1000; $j++) {
             $data[] = [
-                'name' => 'Product ' . ($i * 1000 + $j + 1),
+                'uuid' => fake()->uuid,
+                'collection' => fake()->randomElement(['avatar', 'project_image', 'cv']),
+
+                'author_id' => fake()->numberBetween(1, 10000),
+                'copyright_notice' => fake()->name(),
+                'copyright_approved_at' => fake()->optional(0.9)->dateTime,
+
+                'title' => fake()->optional()->sentence,
+                'name' => basename($path = fake()->filePath()),
+                'position' => fake()->numberBetween(1, 100),
+
+                'disk' => fake()->randomElement(['s3', 'local', 'sftp']),
+                'path' => $path,
+                'mime_type' => fake()->mimeType(),
+                'size' => fake()->numberBetween(1000, 1000000),
+                'meta_data' => json_encode([
+                    'width' => fake()->numberBetween(320, 4096),
+                    'height' => fake()->numberBetween(320, 4096),
+                ]),
+
+                'created_at' => fake()->dateTime,
+                'updated_at' => fake()->dateTime,
             ];
         }
 
